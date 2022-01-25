@@ -22,16 +22,21 @@
 # SOFTWARE.
 
 IMAGE_NAME="influxdb2builder"
+BUILD_OUTPUT="${HOME}/influxdb2/build_output"
 
-# Functions
+# Automaticly detect latest branch/tag
 get_release() {
     curl --silent "https://api.github.com/repos/$1/releases/latest" |
     grep '"tag_name":' |
     sed -E 's/.*"([^"]+)".*/\1/'
 }
 
+# Detect and use latest branch/tag
+# Can be set manually if a specific branch is required e.g., v2.1.1
+INFLUXDB2_BRANCH=`get_release influxdata/influxdb`
+INFLUXCLI_BRANCH=`get_release influxdata/influx-cli`
+
 # Create output folder
-BUILD_OUTPUT="${HOME}/influxdb2/build_output"
 if [ ! -d ${BUILD_OUTPUT} ]; then
     mkdir -p ${BUILD_OUTPUT}
 fi
@@ -42,10 +47,10 @@ docker run \
  --tmpfs /tmp:exec \
  --net=host \
  --rm \
- -e GOROOT="/opt/go" \
- -e GOPATH="/root/go" \
- -e INFLUXDB2_BRANCH=`get_release influxdata/influxdb` \
- -e INFLUXCLI_BRANCH=`get_release influxdata/influx-cli` \
+ -e INFLUXDB2_BRANCH=${INFLUXDB2_BRANCH} \
+ -e INFLUXCLI_BRANCH=${INFLUXCLI_BRANCH} \
  -e TZ=Europe/Amsterdam \
  -v ${BUILD_OUTPUT}:/build_output \
  -ti ${IMAGE_NAME}
+ 
+echo "Files can be found in: $BUILD_OUTPUT"

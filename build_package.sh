@@ -96,7 +96,7 @@ rm -vrf ${BUILD_OUTPUT}/* 2>&1 | tee -a ${LOG_FILE} >/dev/null
 echo -e "  ${INFO} Cleaned ${BUILD_OUTPUT}/..."
 
 # Setup working folder
-WORKINGDIR="${GOPATH}/src/github.com"
+WORKINGDIR="$(go env GOPATH)/src/github.com"
 if [ ! -d ${WORKINGDIR} ]; then
     mkdir -p ${WORKINGDIR}
 fi
