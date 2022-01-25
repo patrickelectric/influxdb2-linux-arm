@@ -27,7 +27,7 @@
 
 Basically the code should run on and not limited to e.g., RaspberryPI 2 and 3 models and various Samsung Exynos 5422 Odroid boards.
 
-* >= ARMv7A with Hard Float also known as armhf
+* \>= ARMv7A with Hard Float also known as armhf
 * CPU feature required: neon-vfpv3
 
 > Note: Boards with 2GB or more physical memory is highly recommended.
