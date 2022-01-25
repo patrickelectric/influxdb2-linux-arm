@@ -22,12 +22,15 @@
 
 FROM amd64/debian:stretch-slim
 
+# Specify release in format x.xx.*
+# Latest point release is automatically detected
+# Currently influxdb2 requires Go 1.17
+ARG GO_VERSION="1.17.*"
+
 WORKDIR /tmp
 ENV IS_IN_CONTAINER 1
 ENV DEBIAN_FRONTEND noninteractive
-ARG GO_VERSION="1.17.6"
-ARG GOREL_VERSION="v1.3.1"
-ARG NFPM_VERSION="v2.11.3"
+
 VOLUME ["/build_output"]
 
 RUN apt update \ 
@@ -59,10 +62,10 @@ RUN apt update \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install GO from binary
-RUN curl -fL# https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar -xz -C /opt/
+RUN GO_LATEST=$(git ls-remote --tags https://github.com/golang/go.git | sort -Vr -k2 | grep -Po -m 1 "go${GO_VERSION}") \
+  && echo "Downloading Go release ${GO_LATEST}" \
+  && curl -fL# https://golang.org/dl/${GO_LATEST}.linux-amd64.tar.gz | tar -xz -C /opt/
 ENV PATH "/opt/go/bin:/root/go/bin:${PATH}"
-
-# Install Go from source (ARMv7 binary)
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
@@ -70,31 +73,13 @@ ENV PATH "/root/.cargo/bin:${PATH}"
 ENV RUSTFLAGS " -C linker=arm-linux-gnueabihf-gcc"
 RUN rustup target add armv7-unknown-linux-gnueabihf
 
-# Run Task
-RUN go install github.com/go-task/task/v3/cmd/task@latest \
-  && task --version
-
 # Install nfpm
-RUN git clone --branch=${NFPM_VERSION} --depth=1 https://github.com/goreleaser/nfpm.git \
-  && cd nfpm \
-  && task setup \
-  && task build \
-  && mkdir -p ${GOPATH}/bin \
-  && mv -v ./nfpm ${GOPATH}/bin \
-  && ${GOPATH}/bin/nfpm --version \
-  && go clean -modcache
- 
-# Install goreleaser
-# RUN git clone --branch=${GOREL_VERSION} --depth=1 https://github.com/goreleaser/goreleaser \
-#  && cd goreleaser \
-#  && go mod tidy \
-#  && go build -o goreleaser . \
-#  && mkdir -p ${GOPATH}/bin \
-#  && mv -v ./goreleaser ${GOPATH}/bin \ 
-#  && ${GOPATH}/bin/goreleaser --version \
-#  && go clean -modcache
+RUN go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest \
+  && nfpm --version
 
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Clean-up
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && go clean -modcache
 
 WORKDIR /root
 
