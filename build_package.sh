@@ -159,7 +159,7 @@ else
     cd influxdb
     go env -w GO111MODULE=on
     go env 2>&1 | tee -a ${LOG_FILE} >/dev/null
-    sed -i 's/all: generate $(CMDS)/all: $(CMDS)/' Makefile
+    sed -i 's/all: generate $(CMDS)/all: $(CMDS)/' *[Mm]akefile # In future releases Makefile is renamed to GNUmakefile
 
     # Make tidy
     echo -e "  ${INFO} Starting to tidy go modules..."
