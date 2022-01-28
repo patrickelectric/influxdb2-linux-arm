@@ -55,7 +55,6 @@ create_archive () {
 
 # Sets environment suitable for cross compiling for armhf (ARMv7l)
 set_cross () {
-    go clean -modcache
     go env -w CC=arm-linux-gnueabihf-gcc
     go env -w CXX=arm-linux-gnueabihf-g++
     go env -w GOARCH=arm
@@ -159,7 +158,25 @@ else
     cd influxdb
     go env -w GO111MODULE=on
     go env 2>&1 | tee -a ${LOG_FILE} >/dev/null
-    sed -i 's/all: generate $(CMDS)/all: $(CMDS)/' *[Mm]akefile # In future releases Makefile is renamed to GNUmakefile
+    # Remove task generate from task all:
+    sed -i '/all: generate $(CMDS)/{s//all: $(CMDS)/g;h};${x;/./{x;q0};x;q1}' *[Mm]akefile 2>&1 | tee -a ${LOG_FILE} >/dev/null
+    if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo "${DATE_TIME} - ERROR: Unable to change task all: in Makefile" 2>&1 | tee -a ${LOG_FILE} >/dev/null
+        echo -e "  ${CROSS} Error message: Failed to change task all: in Makefile"
+        exit 1
+    else
+        echo -e "  ${TICK} Succesfully changed task all: in Makefile"
+    fi
+    
+    # Prevent go pkg-config beeing build on the fly
+    sed -i '/PKG_CONFIG:=.*/{s//PKG_CONFIG:=${GOPATH}\/bin\/pkg-config/g;h};${x;/./{x;q0};x;q1}' *[Mm]akefile 2>&1 | tee -a ${LOG_FILE} >/dev/null
+    if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo "${DATE_TIME} - ERROR: Unable to set variable PKG_CONFIG in Makefile" 2>&1 | tee -a ${LOG_FILE} >/dev/null
+        echo -e "  ${CROSS} Error message: Failed to set PKG_CONFIG variable in Makefile"
+        exit 1
+    else
+        echo -e "  ${TICK} Succesfully set PKG_VARIABLE in Makefile"
+    fi
 
     # Make tidy
     echo -e "  ${INFO} Starting to tidy go modules..."
@@ -170,6 +187,16 @@ else
         exit 1
     else
         echo -e "  ${TICK} Finished tidying modules (influxdb2)"
+    fi
+
+    # Build and install go pkg-config
+    go install github.com/influxdata/pkg-config@latest 2>&1 | tee -a ${LOG_FILE} >/dev/null
+    if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo "${DATE_TIME} - ERROR: Failed to built and install Go pkg-config" 2>&1 | tee -a ${LOG_FILE} >/dev/null
+        echo -e "  ${CROSS} Error message: Failed to built and install Go pkg-config!"
+        exit 1
+    else
+        echo -e "  ${TICK} Built and installed Go pkg-config"
     fi
 
     # Generate influxdb2 make prerequisites
@@ -195,17 +222,6 @@ else
         echo ${LD_LIBRARY_PATH} 2>&1 | tee -a ${LOG_FILE} >/dev/null
         ls /lib/ld-linux-armhf.so.3 2>&1 | tee -a ${LOG_FILE} >/dev/null
         go env 2>&1 | tee -a ${LOG_FILE} >/dev/null
-
-        # go mod tidy
-        echo -e "  ${INFO} Starting to tidy go modules (cross compile)..."
-        make tidy 2>&1 | tee -a ${LOG_FILE} >/dev/null
-		if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "${DATE_TIME} - ERROR: Unable to make tidy" 2>&1 | tee -a ${LOG_FILE} >/dev/null
-            echo -e "  ${CROSS} Error message: Failed to tidy go modules (cross compile)!"
-            exit 1
-        else
-            echo -e "  ${TICK} Finished tidying modules (cross compile)!"
-        fi
     fi
 fi
 
