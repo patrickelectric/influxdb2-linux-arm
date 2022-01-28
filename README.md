@@ -146,13 +146,13 @@ Since Influxdb2 v2.0.9 the client `influx` will be maintained in a separate repo
 ```bash
 $ ./run_container.sh
 ##########################################################################
-### builting influxdb2 server & influx-cli packages for armhf (ARMv7A) ###
+### Building influxdb2 server & influx-cli packages for armhf (ARMv7A) ###
 ##########################################################################
 
 ### PREPERATIONS ###
 
-  [i] Cleaned /built_output/...
-  [i] Initialized log file /built_output/influxdb2-built-20220125.log...
+  [i] Cleaned /build_output/...
+  [i] Initialized log file /build_output/influxdb2-build-20220128.log...
   [i] Using influxdb2 branch: v2.1.1...
   [i] Using influx-cli branch: v2.2.1...
   [i] Using go version: go version go1.17.6 linux/amd64...
@@ -162,17 +162,18 @@ $ ./run_container.sh
 
   [i] Starting influxdb2 clone using branch v2.1.1
   [✓] Succesfully cloned influxdb2 repository
+  [✓] Succesfully changed task all: in Makefile
+  [✓] Succesfully set PKG_VARIABLE in Makefile
   [i] Starting to tidy go modules...
   [✓] Finished tidying modules (influxdb2)
+  [✓] Built and installed Go pkg-config
   [i] Starting generation of prerequisites...
   [✓] Generated all prerequisites
   [✓] Switched to cross compile environment
-  [i] Starting to tidy go modules (cross compile)...
-  [✓] Finished tidying modules (cross compile)!
-  [i] Starting influxdb2 server built (influxd)
+  [i] Starting influxdb2 server build (influxd)
   [✓] Compiled influxdb2 server (influxd)
-  [✓] built DEB package influxdb2-v2.1.1-armv7l.deb
-  [✓] built RPM package influxdb2-v2.1.1-armv7l.rpm
+  [✓] Build DEB package influxdb2-v2.1.1-armv7l.deb
+  [✓] Build RPM package influxdb2-v2.1.1-armv7l.rpm
   [✓] Create TAR archive influxdb2-v2.1.1-linux-armv7l.tar
 
 ### INFLUXDB2-CLIENT ###
@@ -181,14 +182,14 @@ $ ./run_container.sh
   [✓] Finished tidying modules (influx-cli)
   [✓] Compiled influxdb2 client (influx)
   [✓] Compiled influx client (influx)
-  [✓] built DEB package influxdb2-client-v2.2.1-armv7l.deb
-  [✓] built RPM package influxdb2-v2.1.1-armv7l.rpm
+  [✓] Build DEB package influxdb2-client-v2.2.1-armv7l.deb
+  [✓] Build RPM package influxdb2-v2.1.1-armv7l.rpm
   [✓] Create TAR archive influxdb2-client-v2.2.1-linux-armv7l.tar
-  [i] All done! Below a list of all files create in /built_output on your host.
+  [i] All done! Below a list of all files create in /build_output on your host.
 
 ### FILES CREATED ###
 
-  influxdb2-built-20220125.log
+  influxdb2-build-20220128.log
   influxdb2-client-v2.2.1-armv7l.deb
   influxdb2-client-v2.2.1-armv7l.deb.sha256sum
   influxdb2-client-v2.2.1-armv7l.rpm
@@ -201,9 +202,7 @@ $ ./run_container.sh
   influxdb2-v2.1.1-armv7l.rpm.sha256sum
   influxdb2-v2.1.1-linux-armv7l.tar.gz
   influxdb2-v2.1.1-linux-armv7l.tar.gz.sha256sum
-Files can be found in: /home/<your home>/influxdb2/built_output
-
-$ cd /home/<your home>/influxdb2/built_output
+Files can be found in: /home/choekstra/influxdb2/build_output
 ```
 
 ## Finally install the packages
