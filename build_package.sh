@@ -64,6 +64,9 @@ set_cross () {
     ln -s /usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
 }
 
+rustup target add armv7-unknown-linux-gnueabihf
+rustup component add rust-src rust-std --toolchain armv7-unknown-linux-gnueabihf
+
 # Set date format
 DATE_TIME=`date +"%b %d, %Y %H:%M:%S %p %Z"`
 LOG_DATE=`date +"%Y%m%d"`
@@ -156,6 +159,8 @@ if [ $? -ne 0 ]; then
 else
     echo -e "  ${TICK} Succesfully cloned influxdb2 repository"
     cd influxdb
+    mkdir .cargo
+    cp /root/.cargo/config.toml .cargo/config.toml
     go env -w GO111MODULE=on
     go env 2>&1 | tee -a ${LOG_FILE} >/dev/null
     # Remove task generate from task all:

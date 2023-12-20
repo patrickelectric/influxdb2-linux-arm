@@ -20,12 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM amd64/debian:stretch-slim
+FROM amd64/debian:buster-slim
 
 # Specify release in format x.xx.*
 # Latest point release is automatically detected
 # Currently influxdb2 requires Go 1.17
-ARG GO_VERSION="1.17.*"
+ARG GO_VERSION="1.20.*"
 
 WORKDIR /tmp
 ENV IS_IN_CONTAINER 1
@@ -84,6 +84,8 @@ RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 WORKDIR /root
 
 COPY ["build_package.sh", "col_table", "influxdb2_nfpm.yml", "influxdb2-client_nfpm.yml", "."]
+ENV CARGO_HOME /root/.cargo
+COPY config.toml /root/.cargo/config.toml
 
 ENTRYPOINT ["bash","build_package.sh"]
 # ENTRYPOINT ["bash"]
